@@ -1,0 +1,7 @@
+# pyproject.toml
+[tool.black]
+line-length = 192
+target-version = ['py311']
+
+[tool.isort]
+profile = "black"

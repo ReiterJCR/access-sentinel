@@ -5,3 +5,9 @@ target-version = ['py311']
 
 [tool.isort]
 profile = "black"
+
+[tool.poe.tasks]
+
+format = { shell = "black . && isort . && flake8 ." }
+
+run = { shell = "python manage.py runserver" }

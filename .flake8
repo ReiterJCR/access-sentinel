@@ -1,4 +1,5 @@
-# .flake8
+#Command to format code, sort imports, and check for style issues
+#black . && isort . && flake8 . 
 [flake8]
 exclude = venv, migrations, __pycache__
 max-line-length = 192

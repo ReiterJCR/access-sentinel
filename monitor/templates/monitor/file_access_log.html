@@ -1,0 +1,37 @@
+{% extends "monitor/base.html" %}
+{% block title %}File Access Log{% endblock %}
+{% block content %}
+<body class="p-4">
+  <h1 class="mb-4">File Access Log</h1>
+  <table class="table table-bordered table-hover">
+    <thead class="table-dark">
+      <tr>
+        <th>User</th>
+        <th>Department</th>
+        <th>File</th>
+        <th>IP Address</th>
+        <th>Timestamp</th>
+        <th>Anomaly</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for log in logs %}
+      <tr class="{% if log.id in anomalies %}table-danger{% endif %}">
+        <td>{{ log.user.name }}</td>
+        <td>{{ log.user.department }}</td>
+        <td>{{ log.file.name }}</td>
+        <td>{{ log.ip_address }}</td>
+        <td>{{ log.timestamp }}</td>
+        <td>
+          {% if log.id in anomalies %}
+            <strong>Yes</strong>
+          {% else %}
+            -
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</body>
+{% endblock %}

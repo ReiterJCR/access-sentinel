@@ -1,0 +1,22 @@
+{% extends "monitor/base.html" %}
+{% block title %}Welcome{% endblock %}
+
+{% block content %}
+<div class="text-center mt-5">
+  <h1 class="mb-4">Welcome to Access Sentinel</h1>
+  <p class="lead mb-4">
+    This is a simulated insider threat detection platform.
+    Users can interact with sensitive files, while interactions and security anomalies are monitored in real time.
+  </p>
+  {%if request.user.is_authenticated %}
+    <p class="mb-4">Hello, {{ request.user.first_name }}</p>
+    <a href="{% url 'file_browser' %}" class="btn btn-lg btn-secondary ms-2">View Files</a>
+    <a href="{% url 'admin_dashboard' %}" class="btn btn-lg btn-secondary ms-2">Admin Dashboard</a>
+    <a href="{% url 'access_log' %}" class="btn btn-lg btn-secondary ms-2">Access Log</a>
+
+  {% else %}
+    <a href="{% url 'login' %}" class="btn btn-lg btn-primary">Log In</a>
+
+  {% endif %}
+</div>
+{% endblock %}

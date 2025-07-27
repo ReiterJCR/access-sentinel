@@ -1,0 +1,24 @@
+{% extends "monitor/base.html" %}
+{% block title %}File Access{% endblock %}
+{% block content %}
+<h2>Welcome, {{ user.name }}</h2>
+<h4>Department: {{ user.department }}</h4>
+<table border="1">
+  <tr>
+    <th>File</th>
+    <th>Path</th>
+    <th>Sensitivity</th>
+    <th>Action</th>
+  </tr>
+  {% for file in files %}
+    <tr>
+      <td>{{ file.name }}</td>
+      <td>{{ file.path }}</td>
+      <td>{{ file.sensitivity }}</td>
+      <td>
+        <a href="{% url 'open_file' user.id file.id %}">Open</a>
+      </td>
+    </tr>
+  {% endfor %}
+</table>
+{% endblock %}

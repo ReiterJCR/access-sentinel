@@ -1,0 +1,76 @@
+{% extends "monitor/base.html" %}
+{% block title %}Admin Dashboard{% endblock %}
+{% block content %}
+<body class="p-4">
+  <h1 class="mb-4">Admin Dashboard</h1>
+
+  <div class="mb-4">
+    <h4>Total Access Logs: {{ total_logs }}</h4>
+  </div>
+
+  <div class="mb-4">
+    <h3>🚨 Recent Anomalies</h3>
+    <table class="table table-bordered table-sm">
+      <thead class="table-danger">
+        <tr>
+          <th>User</th>
+          <th>File</th>
+          <th>Anomaly</th>
+          <th>Detail</th>
+          <th>Timestamp</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for anomaly in recent_anomalies %}
+          <tr>
+            <td>{{ anomaly.access_log.user.name }}</td>
+            <td>{{ anomaly.access_log.file.name }}</td>
+            <td>{{ anomaly.anomaly_type }}</td>
+            <td>{{ anomaly.detail|truncatewords:12 }}</td>
+            <td>{{ anomaly.access_log.timestamp }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="mb-4">
+    <h3>👥 User Risk Scores</h3>
+    <table class="table table-striped">
+      <thead class="table-light">
+        <tr>
+          <th>User</th>
+          <th>Anomalies Detected</th>
+          <th>Risk Level</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for user in user_anomalies %}
+          <tr>
+            <td>{{ user.access_log__user__name }}</td>
+            <td>{{ user.count }}</td>
+            <td>
+              {% if user.count > 10 %}
+                <span class="badge bg-danger">Critical</span>
+              {% elif user.count > 5 %}
+                <span class="badge bg-warning">Medium</span>
+              {% else %}
+                <span class="badge bg-success">Low</span>
+              {% endif %}
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="mb-4">
+    <h3>🗂 File Sensitivity Breakdown</h3>
+    <ul>
+      {% for item in sensitivity_counts %}
+        <li>{{ item.sensitivity|title }}: {{ item.count }} files</li>
+      {% endfor %}
+    </ul>
+  </div>
+</body>
+{% endblock %}

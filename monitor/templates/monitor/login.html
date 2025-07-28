@@ -15,7 +15,7 @@
       <select class="form-select" name="username" id="username" required>
         <option value="" disabled selected>Select a user</option>
         {% for user in users %}
-          <option value="{{ user.name }}">{{ user.username }}</option>
+          <option value="{{ user.username }}">{{ user.username }}</option>
         {% endfor %}
       </select>
     </div>

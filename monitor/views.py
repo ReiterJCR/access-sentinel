@@ -8,11 +8,11 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
 from django.core.paginator import Paginator
 from django.db.models import Count
-from django.shortcuts import redirect, render
-from django.utils import timezone
 from django.http import JsonResponse
+from django.shortcuts import redirect, render
 
-from .models import AccessLog, AnomalyLog, File, User as MonitorUser
+from .models import AccessLog, AnomalyLog, File
+from .models import User as MonitorUser
 
 USER_AGENTS = [
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
@@ -27,22 +27,27 @@ IP_POOL = ["8.8.8.8", "104.26.10.228", "203.0.113.5", "185.199.110.153", "198.51
 def index_view(request):
     return render(request, "monitor/index.html")
 
+
 def signup_view(request):
-    if request.method == 'POST':
+    if request.method == "POST":
         form = UserCreationForm(request.POST)
         if form.is_valid():
             auth_user = form.save()
-            # Create matching monitor.User object
+            # Create linked monitor.User object
             MonitorUser.objects.create(auth_user=auth_user, username=auth_user.username, department="General")
-            return redirect('login')  # or 'home'
+            return redirect("login")
     else:
         form = UserCreationForm()
-    return render(request, 'monitor/signup.html', {'form': form})
+    return render(request, "monitor/signup.html", {"form": form})
+
 
 def login_view(request):
+    if request.user.is_authenticated:
+        return redirect("index")
     users = MonitorUser.objects.all()
     error = None
     if request.method == "POST":
+
         username = request.POST.get("username")
         password = request.POST.get("password")
         user = authenticate(request, username=username, password=password)
@@ -62,14 +67,14 @@ def logout_view(request):
 
 @login_required
 def file_browser(request):
-    user = MonitorUser.objects.get(auth_user=request.user)  # Get MonitorUser instance
+    user = MonitorUser.objects.get(auth_user=request.user)
     files = File.objects.all()
     return render(request, "monitor/file_browser.html", {"user": user, "files": files})
 
 
 @login_required
 def open_file(request, file_id):
-    user = MonitorUser.objects.get(auth_user=request.user)  # Get MonitorUser instance
+    user = MonitorUser.objects.get(auth_user=request.user)
     file = File.objects.get(id=file_id)
 
     ip = random.choice(IP_POOL)
@@ -124,7 +129,7 @@ def get_user_country_map(logs):
         try:
             res = requests.get(f"https://ipinfo.io/{ip}/json", headers=headers, timeout=5)
             country = res.json().get("country", "??")
-        except:
+        except requests.RequestException:
             country = "??"
 
         if country not in user_countries[log.user.id] and user_countries[log.user.id]:
@@ -142,20 +147,20 @@ def access_log_view(request):
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
 
-    return render(request, "monitor/file_access_log.html", {
-        "logs": page_obj,
-        "anomalies": anomaly_ids,
-        "page_obj": page_obj,  # for pagination UI
-    })
+    return render(
+        request,
+        "monitor/file_access_log.html",
+        {
+            "logs": page_obj,
+            "anomalies": anomaly_ids,
+            "page_obj": page_obj,  # for pagination UI
+        },
+    )
 
 
 @login_required
 def live_access_feed(request):
-    logs = (
-        AccessLog.objects
-        .select_related("user", "file")
-        .order_by("-timestamp")[:15]
-    )
+    logs = AccessLog.objects.select_related("user", "file").order_by("-timestamp")[:15]
     data = [
         {
             "user": log.user.username,
@@ -170,28 +175,16 @@ def live_access_feed(request):
 
 @login_required
 def dashboard_stats(request):
-    top_users = (
-        AccessLog.objects
-        .values("user__username")
-        .annotate(count=Count("id"))
-        .order_by("-count")[:5]
-    )
+    top_users = AccessLog.objects.values("user__username").annotate(count=Count("id")).order_by("-count")[:5]
 
-    anomaly_types = (
-        AnomalyLog.objects
-        .values("anomaly_type")
-        .annotate(count=Count("id"))
-        .order_by("-count")
-    )
+    anomaly_types = AnomalyLog.objects.values("anomaly_type").annotate(count=Count("id")).order_by("-count")
 
-    sensitivity_counts = (
-        File.objects
-        .values("sensitivity")
-        .annotate(count=Count("id"))
-    )
+    sensitivity_counts = File.objects.values("sensitivity").annotate(count=Count("id"))
 
-    return JsonResponse({
-        "top_users": list(top_users),
-        "anomaly_types": list(anomaly_types),
-        "sensitivity_counts": list(sensitivity_counts),
-    })
+    return JsonResponse(
+        {
+            "top_users": list(top_users),
+            "anomaly_types": list(anomaly_types),
+            "sensitivity_counts": list(sensitivity_counts),
+        }
+    )

@@ -1,24 +1,45 @@
 {% extends "monitor/base.html" %}
 {% block title %}File Access{% endblock %}
 {% block content %}
-<h2>Welcome, {{ user.username }}</h2>
-<h4>Department: {{ user.department }}</h4>
-<table border="1">
-  <tr>
-    <th>File</th>
-    <th>Path</th>
-    <th>Sensitivity</th>
-    <th>Action</th>
-  </tr>
-  {% for file in files %}
-    <tr>
-      <td>{{ file.name }}</td>
-      <td>{{ file.path }}</td>
-      <td>{{ file.sensitivity }}</td>
-      <td>
-        <a href="{% url 'open_file' file.id %}">Open</a>
-      </td>
-    </tr>
-  {% endfor %}
-</table>
+<div class="container py-4">
+  <div class="mb-4">
+    <h2 class="fw-bold">Welcome, {{ user.username }}</h2>
+    <h5 class="text-muted">Department: {{ user.department }}</h5>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table table-hover table-striped table-bordered align-middle shadow-sm rounded">
+      <thead class="table-primary">
+        <tr>
+          <th scope="col">File</th>
+          <th scope="col">Path</th>
+          <th scope="col">Sensitivity</th>
+          <th scope="col">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for file in files %}
+        <tr>
+          <td>{{ file.name }}</td>
+          <td class="text-muted small">{{ file.path }}</td>
+          <td>
+            {% if file.sensitivity == 'high' %}
+              <span class="badge bg-danger text-uppercase">High</span>
+            {% elif file.sensitivity == 'medium' %}
+              <span class="badge bg-warning text-dark text-uppercase">Medium</span>
+            {% else %}
+              <span class="badge bg-success text-uppercase">Low</span>
+            {% endif %}
+          </td>
+          <td>
+            <a href="{% url 'open_file' file.id %}" class="btn btn-sm btn-outline-primary">
+              Open
+            </a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
 {% endblock %}

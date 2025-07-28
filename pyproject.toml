@@ -11,3 +11,6 @@ profile = "black"
 format = { shell = "black . && isort . && flake8 ." }
 
 run = { shell = "python manage.py runserver" }
+
+makemigrations = { shell = "python manage.py makemigrations" }
+migrate = { shell = "python manage.py migrate" }

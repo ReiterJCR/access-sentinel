@@ -1,12 +1,13 @@
 from django.db import models
-
+from django.contrib.auth.models import User as AuthUser
 
 class User(models.Model):
-    name = models.CharField(max_length=100)
+    username = models.CharField(max_length=100)
     department = models.CharField(max_length=100)
-
+    auth_user = models.OneToOneField(AuthUser, on_delete=models.CASCADE, null=True, blank=True)
+    risk_score = models.IntegerField(default=0)
     def __str__(self):
-        return self.name
+        return self.username
 
 
 class File(models.Model):

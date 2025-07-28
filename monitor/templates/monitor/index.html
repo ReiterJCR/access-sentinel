@@ -9,7 +9,7 @@
     Users can interact with files and watch as interactions and security anomalies are monitored in real time.
   </p>
   {%if request.user.is_authenticated %}
-    <p class="mb-4">Hello, {{ request.user.first_name }}</p>
+    <p class="mb-4">Hello, {{ request.user.username }}</p>
     <a href="{% url 'file_browser' %}" class="btn btn-lg btn-secondary ms-2">View Files</a>
     <a href="{% url 'admin_dashboard' %}" class="btn btn-lg btn-secondary ms-2">Admin Dashboard</a>
     <a href="{% url 'access_log' %}" class="btn btn-lg btn-secondary ms-2">Access Log</a>

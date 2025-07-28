@@ -1,21 +1,33 @@
-{% extends "monitor/base.html" %}
-{% block title %}Login{% endblock %}
+{% extends 'monitor/base.html' %}
 {% block content %}
-<h2 class="mb-3">Login</h2>
-{% if error %}
-  <div class="alert alert-danger">{{ error }}</div>
-{% endif %}
-<form method="post">
-  {% csrf_token %}
-  <div class="mb-3">
-    <label for="username">Username:</label>
-    <input class="form-control" type="text" name="username" required>
-  </div>
-  <div class="mb-3">
-    <label for="password">Password:</label>
-    <input class="form-control" type="password" name="password" required>
-  </div>
-  <button type="submit" class="btn btn-primary">Login</button>
-</form>
-{% endblock %}
+<div class="container mt-5" style="max-width: 400px;">
+  <h2 class="mb-4">Login</h2>
 
+  {% if error %}
+    <div class="alert alert-danger">{{ error }}</div>
+  {% endif %}
+
+  <form method="POST">
+    {% csrf_token %}
+
+    <div class="mb-3">
+      <label for="username" class="form-label">Username</label>
+      <select class="form-select" name="username" id="username" required>
+        <option value="" disabled selected>Select a user</option>
+        {% for user in users %}
+          <option value="{{ user.name }}">{{ user.username }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="mb-3">
+      <label for="password" class="form-label">Password</label>
+      <input type="password" name="password" class="form-control" required />
+    </div>
+
+    <button type="submit" class="btn btn-primary w-100">Log In</button>
+  </form>
+
+  <a href="{% url 'signup' %}" class="btn btn-link mt-3 w-100">Create a New Account</a>
+</div>
+{% endblock %}

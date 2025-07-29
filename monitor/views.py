@@ -11,8 +11,11 @@ from django.db.models import Count
 from django.http import JsonResponse
 from django.shortcuts import redirect, render
 
+from monitor.helpers import get_client_ip
+
 from .models import AccessLog, AnomalyLog, File
 from .models import User as MonitorUser
+from .tasks import calculate_risk_score
 
 USER_AGENTS = [
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
@@ -53,6 +56,16 @@ def login_view(request):
         user = authenticate(request, username=username, password=password)
         if user:
             login(request, user)
+            monitor_user = MonitorUser.objects.get(auth_user=user)
+            ip = get_client_ip(request)
+
+            # ✅ Track IP address
+            if not monitor_user.first_ip:
+                monitor_user.first_ip = ip
+            elif monitor_user.first_ip != ip:
+                monitor_user.flagged_for_ip_mismatch = True
+            monitor_user.save()
+
             return redirect("index")
         else:
             error = "Invalid username or password"
@@ -86,6 +99,11 @@ def open_file(request, file_id):
         ip_address=ip,
         user_agent=ua,
     )
+    request.session["file_opens"] = request.session.get("file_opens", 0) + 1
+
+    if request.session["file_opens"] >= 5:
+        request.session["file_opens"] = 0
+        calculate_risk_score.delay(user.id)
 
     return redirect("file_browser")
 

@@ -12,7 +12,6 @@
       <thead class="table-primary">
         <tr>
           <th scope="col">File</th>
-          <th scope="col">Path</th>
           <th scope="col">Sensitivity</th>
           <th scope="col">Action</th>
         </tr>
@@ -21,15 +20,16 @@
         {% for file in files %}
         <tr>
           <td>{{ file.name }}</td>
-          <td class="text-muted small">{{ file.path }}</td>
           <td>
-            {% if file.sensitivity == 'high' %}
-              <span class="badge bg-danger text-uppercase">High</span>
-            {% elif file.sensitivity == 'medium' %}
-              <span class="badge bg-warning text-dark text-uppercase">Medium</span>
-            {% else %}
-              <span class="badge bg-success text-uppercase">Low</span>
-            {% endif %}
+                {% if file.sensitivity == 'classified' %}
+                <span class="badge bg-danger text-uppercase">Classified</span>
+                {% elif file.sensitivity == 'confidential' %}
+                <span class="badge bg-warning text-dark text-uppercase">Confidential</span>
+                {% elif file.sensitivity == 'internal' %}
+                <span class="badge bg-primary text-uppercase">Internal</span>
+                {% else %}
+                <span class="badge bg-success text-uppercase">Public</span>
+                {% endif %}
           </td>
           <td>
             <a href="{% url 'open_file' file.id %}" class="btn btn-sm btn-outline-primary">

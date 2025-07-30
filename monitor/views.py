@@ -54,15 +54,14 @@ def login_view(request):
         username = request.POST.get("username")
         password = request.POST.get("password")
         user = authenticate(request, username=username, password=password)
-        if user:
+
+        if user: #login, get user obj, check current IP against home_ip
             login(request, user)
             monitor_user = MonitorUser.objects.get(auth_user=user)
             ip = get_client_ip(request)
-
-            # ✅ Track IP address
-            if not monitor_user.first_ip:
-                monitor_user.first_ip = ip
-            elif monitor_user.first_ip != ip:
+            if not monitor_user.home_ip:
+                monitor_user.home_ip = ip
+            elif monitor_user.home_ip != ip:
                 monitor_user.flagged_for_ip_mismatch = True
             monitor_user.save()
 
